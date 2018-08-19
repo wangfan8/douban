@@ -2,59 +2,62 @@ library(tidyverse)
 library(tidytext)
 library(purrr)
 library(lubridate)
+library(stringr)
 
-load(file = "li_douban_book_extract")
+data <- read_csv("~/Dropbox/douban/data/li_douban_book.csv")
 
-# flatten the hierachical lists once
-book_contents <- flatten(book_contents)
+# filter out all chinese books (at least title contains chinese)
+data$chinese_ind <- 0
+data[grep("[\u4e00-\u9fa5]", data$title),]$chinese_ind <- 1
 
-# we will need every 4th element as the book info
-book <- book_contents[seq(from = 4,
-                           to   = length(book_contents),
-                           by   = 4)]
+# book read in each year by language 
+# filter out 2008 due to retroactive marking
+data %>% 
+  filter(year(updated) != 2008 & status == 'read') %>%
+  ggplot(aes(factor(year(updated)), fill = factor(chinese_ind))) +
+  geom_bar()
 
-book <- flatten(book)
+# pages of book read
+data %>% 
+  filter(year(updated) != 2008 & status == 'read' & !is.na(pages) & pages > 0) %>%
+  mutate(read_year = year(updated)) %>%
+  group_by(read_year)%>%
+  summarise(total_page = sum(pages, na.rm = TRUE)) %>%
+  ggplot(aes(x = read_year, y = total_page)) +
+  geom_line()
 
-number_books <- length(book)
+# average number of pages per book
+data %>% 
+  filter(year(updated) != 2008 & status == 'read' & !is.na(pages) & pages > 0) %>%
+  mutate(read_year = year(updated)) %>%
+  group_by(read_year)%>%
+  summarise(average_page = sum(pages, na.rm = TRUE)/n()) %>%
+  ggplot(aes(x = read_year, y = average_page)) +
+  geom_line()
 
-df_book <- data_frame(status      = character(length         = number_books),
-                      updated     = as.POSIXct(rep("2017-01-01", number_books)),
-                      numRaters   = numeric(  length         = number_books),
-                      averageRate = numeric(  length         = number_books),
-                      author      = character(length         = number_books),
-                      binding     = character(length         = number_books),
-                      pages       = numeric(  length         = number_books),
-                      publisher   = character(length         = number_books),
-                      title       = character(length         = number_books),
-                      url         = character(length         = number_books),
-                      author_info = character(length         = number_books),
-                      summary     = character(length         = number_books),
-                      price       = character(length         = number_books),
-                      isbn13      = character(length         = number_books),
-                      isbn10      = character(length         = number_books))
+# page distribution
+data %>% 
+  filter(year(updated) != 2008 & status == 'read' & !is.na(pages) & pages > 0) %>%
+  mutate(read_year = year(updated)) %>%
+  group_by(read_year)%>%
+  ggplot(aes(x = read_year, y = pages, group = read_year)) +
+  geom_boxplot()
 
-for (i in 1:number_books){
-  df_book[i, "status"]      = book[[i]]$status
-  df_book[i, "updated"]     = ymd_hms(book[[i]]$updated)
-  df_book[i, "numRaters"]   = book[[i]]$book$rating$numRaters
-  df_book[i, "averageRate"] = book[[i]]$book$rating$average
-  df_book[i, "author"]      = paste(unlist(book[[i]]$book$author)
-                                    , collapse = "; ")
-  df_book[i, "binding"]     = book[[i]]$book$binding
-  df_book[i, "pages"]       = as.numeric(book[[i]]$book$pages)
-  df_book[i, "publisher"]   = book[[i]]$book$publisher
-  df_book[i, "title"]       = book[[i]]$book$title
-  df_book[i, "url"]         = book[[i]]$book$alt
-  df_book[i, "author_info"] = book[[i]]$book$author_intro
-  df_book[i, "summary"]     = book[[i]]$book$summary
-  df_book[i, "price"]       = book[[i]]$book$price
-  df_book[i, "isbn13"]      = paste(c(book[[i]]$book$isbn13, 
-                                      ""), 
-                                      collapse = "")
-  df_book[i, "isbn10"]      = book[[i]]$book$isbn10
-}
+# page distribution by language
+data %>% 
+  filter(year(updated) != 2008 & status == 'read' & !is.na(pages) & pages > 0) %>%
+  mutate(read_year = year(updated)) %>%
+  group_by(read_year, chinese_ind)%>%
+  ggplot(aes(x = read_year
+             , y = pages
+             , group = read_year)) +
+  geom_boxplot() +
+  facet_grid(col = vars(chinese_ind))
 
-write_csv(df_book, path = file.path("li_douban_book.csv"))
+
+
+
+
 
 
 
