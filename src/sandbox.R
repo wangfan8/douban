@@ -15,7 +15,19 @@ data %>%
   mutate(author = if_else(grepl("凡尔纳"
                                 , author)
                           , "Jules Verne"
-                          , author)) ->
+                          , author)) %>%
+  mutate(author = if_else(grepl("屠格涅夫"
+                                , author)
+                          , "屠格涅夫"
+                          , author)) %>%
+  mutate(author = if_else(grepl("Tolkien"
+                                , author)
+                          , "J. R. R. Tolkien"
+                          , author)) %>%
+  mutate(author = if_else(grepl("Rowling"
+                                , author)
+                          , "J. K. Rowling"
+                          , author))->
   data
 
 # filter out all chinese books (at least title contains chinese)
