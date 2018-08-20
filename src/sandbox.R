@@ -24,6 +24,9 @@ data %>%
                                 , author)
                           , "J. R. R. Tolkien"
                           , author)) %>%
+  mutate(author = if_else(grepl("George", author) & grepl("Martin", author)
+                          , "George R. R. Martin"
+                          , author)) %>%
   mutate(author = if_else(grepl("Rowling"
                                 , author)
                           , "J. K. Rowling"
