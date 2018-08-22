@@ -66,5 +66,14 @@ book_summary %>%
   rename(freq = n) %>%
   wordcloud2()
 
+# word frequency by author
+book_summary %>% 
+  select(title, summary, author) %>%
+  unnest_tokens(word, summary) %>%
+  anti_join(stop_words) %>%
+  anti_join(custom_stop) %>%
+  group_by(author) %>%
+  count(word) -> word_freq_by_author
+
 
   
