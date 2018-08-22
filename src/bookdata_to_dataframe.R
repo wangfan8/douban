@@ -2,8 +2,10 @@ library(tidyverse)
 library(tidytext)
 library(purrr)
 library(lubridate)
+library(here)
 
-load(file = "li_douban_book_extract")
+raw_file_path <- paste(here::here(), "/data/li_douban_book_extract", sep="") 
+load(file = raw_file_path)
 
 # flatten the hierachical lists once
 book_contents <- flatten(book_contents)
@@ -54,7 +56,8 @@ for (i in 1:number_books){
   df_book[i, "isbn10"]      = book[[i]]$book$isbn10
 }
 
-write_csv(df_book, path = file.path("li_douban_book.csv"))
+out_file_path <- paste(here::here(), "/data/li_douban_book.csv", sep="")
+write_csv(df_book, path = file.path(out_file_path))
 
 
 

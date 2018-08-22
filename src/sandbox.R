@@ -3,8 +3,10 @@ library(tidytext)
 library(purrr)
 library(lubridate)
 library(stringr)
+library(here)
 
-data <- read_csv("~/Dropbox/douban/data/li_douban_book.csv")
+file_path <- paste(here::here(), "/data/li_douban_book.csv", sep="") 
+data <- read_csv(file_path)
 
 # clean up some common writer names
 data %>% 
@@ -30,7 +32,11 @@ data %>%
   mutate(author = if_else(grepl("Rowling"
                                 , author)
                           , "J. K. Rowling"
-                          , author))->
+                          , author)) %>%
+  mutate(author = if_else(grepl("安妮·普鲁克斯"
+                                , author)
+                          , "Annie Proulx"
+                          , author)) ->
   data
 
 # filter out all chinese books (at least title contains chinese)

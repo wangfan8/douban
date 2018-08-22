@@ -1,4 +1,5 @@
 library(httr)
+library(here)
 
 li_book <- list()
 
@@ -9,7 +10,8 @@ urls <- unlist(lapply(common_string, paste, start, sep=""))
 
 book_contents <- lapply(lapply(urls, GET), content)
 
-save(book_contents, file = "li_douban_book_extract")
+file_path <- paste(here::here(), "/data/li_douban_book_extract", sep="") 
+save(book_contents, file = file_path)
 
 
 
