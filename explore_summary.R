@@ -75,5 +75,21 @@ book_summary %>%
   group_by(author) %>%
   count(word) -> word_freq_by_author
 
+# check Zipf's Law
+
+book_summary %>% 
+  select(title, summary, author) %>%
+  unnest_tokens(word, summary) %>%
+  anti_join(stop_words) %>%
+  anti_join(custom_stop) %>%
+  count(word, sort = TRUE) %>%
+  mutate(rank = row_number()) %>%
+  ggplot(aes(x = n, y = rank)) +
+  geom_point() +
+  geom_smooth() +
+  scale_x_log10() +
+  scale_y_log10()
+
+
 
   
