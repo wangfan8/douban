@@ -111,8 +111,75 @@ data_fav_author %>%
   coord_flip() +
   theme_grey(base_family = "STKaiti")
 
+# Is there a difference between chinese book number of pages and others(mainly english)?
+data %>% 
+  filter(status == 'read' & !is.na(pages) & pages > 0) %>%
+  mutate(chinese_ind_cat = if_else(chinese_ind == 1
+                                   , "Chinese"
+                                   , "Others")) %>%
+  group_by(chinese_ind_cat) %>%
+  ggplot(aes(x = chinese_ind_cat, group = chinese_ind_cat, y = pages)) +
+  geom_violin()
 
+# Is there a difference between chinese book number of reviews and others(mainly english)?
+data %>% 
+  filter(status == 'read' & !is.na(numRaters) & numRaters > 0) %>%
+  mutate(chinese_ind_cat = if_else(chinese_ind == 1
+                                   , "Chinese"
+                                   , "Others")) %>%
+  group_by(chinese_ind_cat) %>%
+  ggplot(aes(x = chinese_ind_cat, group = chinese_ind_cat, y = numRaters)) +
+  geom_boxplot()
 
+data %>% 
+  filter(status == 'read' & !is.na(numRaters) & numRaters > 0) %>%
+  mutate(chinese_ind_cat = if_else(chinese_ind == 1
+                                   , "Chinese"
+                                   , "Others")) %>%
+  group_by(chinese_ind_cat) %>%
+  summarise(trimmedMean = mean(numRaters, trim = 0.05),
+            quantile25 = quantile(numRaters, probs = 0.25),
+            quantile50 = quantile(numRaters, probs = 0.50),
+            quantile75 = quantile(numRaters, probs = 0.75))
+
+# Is there a difference between chinese book average reviews and others(mainly english)?
+data %>% 
+  filter(status == 'read' & !is.na(averageRate) & numRaters > 10) %>%
+  mutate(chinese_ind_cat = if_else(chinese_ind == 1
+                                   , "Chinese"
+                                   , "Others")) %>%
+  group_by(chinese_ind_cat) %>%
+  ggplot(aes(x = chinese_ind_cat, group = chinese_ind_cat, y = averageRate)) +
+  geom_boxplot()
+
+data %>% 
+  filter(status == 'read' & !is.na(averageRate) & numRaters > 10) %>%
+  mutate(chinese_ind_cat = if_else(chinese_ind == 1
+                                   , "Chinese"
+                                   , "Others")) %>%
+  group_by(chinese_ind_cat) %>%
+  summarise(mean = mean(averageRate),
+            quantile25 = quantile(averageRate, probs = 0.25),
+            quantile50 = quantile(averageRate, probs = 0.50),
+            quantile75 = quantile(averageRate, probs = 0.75))
+
+# ralationship between number of pages and average rate
+
+data %>% 
+  filter(status == 'read' 
+         & !is.na(averageRate) 
+         & numRaters > 10 
+         & !is.na(pages)
+         & pages > 0) %>%
+  mutate(chinese_ind_cat = if_else(chinese_ind == 1
+                                   , "Chinese"
+                                   , "Others")) %>%
+  group_by(chinese_ind_cat) %>%
+  ggplot(aes(x = pages, y = averageRate, weight = sqrt(numRaters))) +
+  geom_point(aes(size = sqrt(numRaters)
+                 , color = chinese_ind_cat)) +
+  geom_smooth(span = 0.4)
+  
 
 
 
