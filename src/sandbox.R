@@ -185,10 +185,6 @@ data %>%
   geom_point(aes(size = sqrt(numRaters)
                  , color = chinese_ind_cat)) +
   geom_smooth(span = 0.4)
-  
-
-
-
 
 
 
