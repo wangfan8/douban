@@ -1,7 +1,7 @@
 library(httr)
 library(here)
 
-start <- seq(from = 0, to = 600, by = 20)
+start <- seq(from = 0, to = 620, by = 20)
 
 common_string <- "https://api.douban.com/v2/book/user/schweik/collections?start="
 urls <- unlist(lapply(common_string, paste, start, sep=""))
